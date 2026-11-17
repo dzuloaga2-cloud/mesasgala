@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Organizador de mesas</title>
+<title>Gala Senior Class · Mesas</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -25,7 +25,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--gold2);outline-o
 .app{display:grid;grid-template-rows:auto 1fr;height:100vh}
 header{display:flex;align-items:center;gap:16px;padding:12px 20px;background:var(--navy);color:#fff;flex-wrap:wrap}
 header .ttl{flex:1;min-width:240px}
-header input.title{background:transparent;border:1px dashed transparent;color:#fff;font-family:Fraunces,serif;font-size:22px;font-weight:600;padding:2px 6px;margin-left:-6px}
+header input.title{background:transparent;border:1px dashed transparent;color:#fff;font-family:Inter,system-ui,sans-serif;font-size:21px;font-weight:600;letter-spacing:.2px;padding:2px 6px;margin-left:-6px}
 header input.title:hover{border-color:rgba(255,255,255,.3)}
 header input.title:focus{background:rgba(255,255,255,.08);outline:none;border-color:var(--gold2)}
 header .sub{color:#c9cbd4;font-size:12.5px;padding-left:1px}
@@ -505,8 +505,9 @@ $('search').oninput=e=>{query=norm(e.target.value);render()};
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2800)}
 
 /* ---------- inicio ---------- */
-if(!load()){const d=demo();S={title:'Gala de Cuarto Medio',tables:makeTables(11,12),fams:d.fams,guests:d.guests};isDemo=true;
+if(!load()){const d=demo();S={title:'Gala Senior Class',tables:makeTables(11,12),fams:d.fams,guests:d.guests};isDemo=true;
   const u=shuffle(unitsOf(S.guests));u.sort((a,b)=>b.m.length-a.m.length);placeUnits(u);save()}
+if(S.title==='Gala de Cuarto Medio'){S.title='Gala Senior Class';save()}
 render();
 </script>
 </body>
