@@ -51,7 +51,6 @@ main{overflow:auto;padding:20px}
 .fh:hover{background:#f1ece2}
 .fh .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fh .n{margin-left:auto;font-weight:500;color:var(--muted);font-size:11.5px;white-space:nowrap}
-.fh .cp{font-size:10.5px;font-weight:600;color:var(--navy);background:#ece7da;border-radius:5px;padding:1px 5px;white-space:nowrap}
 .fh .badge{font-size:11px;font-weight:600;border-radius:99px;padding:1px 8px;white-space:nowrap;background:#e9eef7;color:var(--navy)}
 .fh .badge.none{background:#f6e7e3;color:var(--bad)}
 .fh .badge.split{background:#fbefd9;color:#9a6a12}
@@ -173,10 +172,7 @@ textarea{min-height:190px;font-family:ui-monospace,Menlo,monospace;font-size:12.
 <!-- Modal: familia -->
 <div class="modal-bg" id="mFam"><div class="modal">
   <h2 id="fTitle">Estudiante</h2>
-  <div class="two">
-    <div class="field"><label>Nombre del estudiante</label><input id="fName"></div>
-    <div class="field"><label>Curso (opcional)</label><input id="fCurso" list="dlCursos" placeholder="Ej: 4°A"></div>
-  </div>
+  <div class="field"><label>Nombre del estudiante</label><input id="fName"></div>
   <div class="field"><label>Invitados</label><div id="fMems"></div>
     <div class="mrow"><input id="fNew" placeholder="Nombre del nuevo invitado"><button id="fAdd">Agregar</button></div>
   </div>
@@ -192,12 +188,11 @@ textarea{min-height:190px;font-family:ui-monospace,Menlo,monospace;font-size:12.
 <div class="modal-bg" id="mImport"><div class="modal">
   <h2>Importar lista</h2>
   <p class="help">Una fila por estudiante. Copia las filas desde Excel y pégalas aquí (o separa con punto y coma):<br>
-  <code>Estudiante ; Curso ; Invitado 1 ; Invitado 2 ; Invitado 3 …</code><br>
+  <code>Estudiante ; Invitado 1 ; Invitado 2 ; Invitado 3 …</code><br>
   Si aún no tienes los nombres, pon la <b>cantidad</b> de invitados:<br>
-  <code>Ana Pérez ; 4°A ; 3</code> → crea 3 invitados que luego puedes renombrar.<br>
-  El curso es opcional; si no lo usas, deja la columna vacía.</p>
-  <div class="field"><textarea id="impText" placeholder="Ana Pérez;4°A;Carlos Pérez;Marcela Soto;Diego Pérez
-Tomás Rojas;4°B;2"></textarea></div>
+  <code>Ana Pérez ; 3</code> → crea 3 invitados que luego puedes renombrar.</p>
+  <div class="field"><textarea id="impText" placeholder="Ana Pérez;Carlos Pérez;Marcela Soto;Diego Pérez
+Tomás Rojas;2"></textarea></div>
   <div class="field"><label>O sube un archivo .csv o .txt</label><input type="file" id="impFile" accept=".csv,.txt,.tsv"></div>
   <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="impReplace" checked style="width:auto"> Reemplazar la lista actual (desmarca para agregar)</label>
   <div class="actions"><button id="impCancel">Cancelar</button><button class="primary" id="impGo">Importar</button></div>
@@ -235,7 +230,6 @@ Tomás Rojas;4°B;2"></textarea></div>
   <div class="actions"><button id="cNo">Cancelar</button><button class="primary" id="cYes">Continuar</button></div>
 </div></div>
 
-<datalist id="dlCursos"></datalist>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -254,7 +248,7 @@ function demo(){let seed=11;const r=()=>{seed=(seed*16807)%2147483647;return(see
   const adults=['Carlos','Marcela','Rodrigo','Paola','Claudio','Verónica','Jorge','Carolina','Patricio','Andrea','Luis','Pamela','Ricardo','Lorena','Mauricio','Gloria','Héctor','Rosa','Sergio','Ximena','Juan','María','Pedro','Cecilia'];
   const sizes=[4,4,3,2,4,5,3,4,2,3,3,4,3,2,3,3,4,3,2,5,3,3,4,2,3,3,4,3,3,2,4,3,3,4,3,2,3,4];
   const fams=[],guests=[];
-  sizes.forEach((n,i)=>{const last=ln[i],stu=fn[i]+' '+last,f={id:newId('f'),name:stu,curso:['4°A','4°B','4°C'][i%3]};fams.push(f);
+  sizes.forEach((n,i)=>{const last=ln[i],stu=fn[i]+' '+last,f={id:newId('f'),name:stu};fams.push(f);
     const used=new Set();for(let k=0;k<n;k++){let nm;do{nm=pick(adults)+' '+(k===1?pick(ln):last)}while(used.has(nm));used.add(nm);guests.push({id:newId('g'),name:nm,fam:f.id,table:null})}});
   return {fams,guests}}
 const makeTables=(n,cap)=>Array.from({length:n},(_,i)=>({id:newId('t'),name:'Mesa '+(i+1),cap}));
@@ -298,7 +292,7 @@ let query='';
 const isHL=g=>query&&(norm(g.name).includes(query)||norm(famName(g.fam)).includes(query));
 const famHL=f=>query&&(norm(famName(f)).includes(query)||famMembers(f).some(g=>norm(g.name).includes(query)));
 function famHeader(f,here,extra){const F=FAM(f)||{};const tot=famMembers(f).length;
-  return `<div class="fh${famHL(f)?' hl':''}" data-fam="${f}" title="Arrastra para mover a toda la familia · clic para editar"><span class="dot" style="background:${famColor(f)}"></span><span class="nm">${esc(F.name)}</span>${F.curso?`<span class="cp">${esc(F.curso)}</span>`:''}${extra||`<span class="n">${here<tot?here+' de '+tot:tot}</span>`}</div>`}
+  return `<div class="fh${famHL(f)?' hl':''}" data-fam="${f}" title="Arrastra para mover a toda la familia · clic para editar"><span class="dot" style="background:${famColor(f)}"></span><span class="nm">${esc(F.name)}</span>${extra||`<span class="n">${here<tot?here+' de '+tot:tot}</span>`}</div>`}
 const pmHTML=g=>`<span class="pm${isHL(g)?' hl':''}" data-gid="${g.id}" title="${esc(g.name)}">${esc(g.name)}</span>`;
 function grouped(list){const by=new Map();sortByFam(list).forEach(g=>{if(!by.has(g.fam))by.set(g.fam,[]);by.get(g.fam).push(g)});
   return[...by.entries()].map(([f,m])=>famHeader(f,m.length)+`<div class="mems">${m.map(pmHTML).join('')}</div>`).join('')}
@@ -325,7 +319,6 @@ function render(){const N=S.guests.length,seated=S.guests.filter(g=>g.table).len
   $('stats').innerHTML=`<div class="stat"><b>${seated}/${N}</b><span>con mesa</span></div><div class="stat"><b>${S.tables.length}</b><span>mesas · ${seats} sillas</span></div>
     <div class="stat"><b>${Math.max(0,seats-seated)}</b><span>sillas libres</span></div><div class="stat"><b style="color:${split?'#9a6a12':'var(--ok)'}">${split}</b><span>familias separadas</span></div>
     <div class="progress"><i style="width:${N?seated/N*100:0}%"></i></div>${seats<N?`<div class="help" style="grid-column:1/-1;color:var(--bad)">Faltan ${N-seats} sillas: agrega mesas en ⚙ Mesas.</div>`:''}${over?`<div class="help" style="grid-column:1/-1;color:var(--bad)">${over} mesa(s) con más personas que sillas.</div>`:''}`;
-  $('dlCursos').innerHTML=[...new Set(S.fams.map(f=>f.curso).filter(Boolean))].map(c=>`<option value="${esc(c)}">`).join('');
   $('demoBanner').style.display=isDemo?'flex':'none'}
 
 /* ---------- arrastrar ---------- */
@@ -376,8 +369,8 @@ $('gDel').onclick=()=>{const g=G(eg);close('mGuest');ask('Eliminar invitado',`¿
 
 let ef=null;
 function openFam(id){const f=id?FAM(id):null;
-  ef={id,name:f?f.name:'',curso:f?f.curso||'':'',mems:f?famMembers(id).map(g=>({id:g.id,name:g.name})):[]};
-  $('fTitle').textContent=f?'Familia de '+f.name:'Nuevo estudiante';$('fName').value=ef.name;$('fCurso').value=ef.curso;$('fNew').value='';
+  ef={id,name:f?f.name:'',mems:f?famMembers(id).map(g=>({id:g.id,name:g.name})):[]};
+  $('fTitle').textContent=f?'Familia de '+f.name:'Nuevo estudiante';$('fName').value=ef.name;$('fNew').value='';
   const ts=f?famTables(id):[];$('fTable').innerHTML=tableOptions(ts.length===1?ts[0]:'__','<option value="__">— No mover —</option><option value="">Sin mesa</option>');
   $('fDel').style.display=f?'':'none';drawMems();open('mFam');setTimeout(()=>$('fName').focus(),50)}
 function drawMems(){$('fMems').innerHTML=ef.mems.map((m,i)=>`<div class="mrow"><input value="${esc(m.name)}" data-mi="${i}"><button class="danger" data-mdel="${i}" title="Quitar">✕</button></div>`).join('')||'<p class="help">Sin invitados aún.</p>'}
@@ -387,7 +380,7 @@ const addMem=()=>{const v=$('fNew').value.trim();if(!v)return;ef.mems.push({id:n
 $('fAdd').onclick=addMem;$('fNew').onkeydown=e=>{if(e.key==='Enter')addMem()};
 $('fCancel').onclick=()=>close('mFam');
 $('fSave').onclick=()=>{const nm=$('fName').value.trim();if(!nm){toast('Escribe el nombre del estudiante');return}pushHist();
-  let f=ef.id?FAM(ef.id):null;if(!f){f={id:newId('f')};S.fams.push(f)}f.name=nm;f.curso=$('fCurso').value.trim();
+  let f=ef.id?FAM(ef.id):null;if(!f){f={id:newId('f')};S.fams.push(f)}f.name=nm;
   const keep=new Set(ef.mems.filter(m=>m.id).map(m=>m.id));S.guests=S.guests.filter(g=>g.fam!==f.id||keep.has(g.id));
   const curT=famTables(f.id).filter(Boolean)[0]||null;
   ef.mems.forEach(m=>{if(!m.name.trim())return;if(m.id)G(m.id).name=m.name.trim();else S.guests.push({id:newId('g'),name:m.name.trim(),fam:f.id,table:null})});
@@ -405,8 +398,8 @@ $('impGo').onclick=()=>{const lines=$('impText').value.split(/\r?\n/).filter(l=>
   const rows=lines.map(l=>(l.includes('\t')?l.split('\t'):l.split(';')).map(c=>c.trim().replace(/^"|"$/g,''))).filter(r=>r[0]&&!/^(estudiante|alumn|nombre)/i.test(r[0]));
   if(!rows.length){toast('No encontré filas para importar');return}
   pushHist();if($('impReplace').checked){S.fams=[];S.guests=[]}let added=0;
-  rows.forEach(r=>{const stu=r[0];let f=S.fams.find(x=>norm(x.name)===norm(stu));if(!f){f={id:newId('f'),name:stu,curso:r[1]||''};S.fams.push(f)}else if(r[1])f.curso=r[1];
-    const rest=r.slice(2).filter(Boolean);
+  rows.forEach(r=>{const stu=r[0];let f=S.fams.find(x=>norm(x.name)===norm(stu));if(!f){f={id:newId('f'),name:stu};S.fams.push(f)}
+    const rest=r.slice(1).filter(Boolean);
     if(rest.length===1&&/^\d+$/.test(rest[0])){const n=+rest[0],have=famMembers(f.id).length;for(let i=1;i<=n;i++){S.guests.push({id:newId('g'),name:`Invitado ${have+i} · ${stu}`,fam:f.id,table:null});added++}}
     else rest.forEach(nm=>{S.guests.push({id:newId('g'),name:nm,fam:f.id,table:null});added++})});
   const seats=S.tables.reduce((s,t)=>s+t.cap,0),cap=S.tables[0]?.cap||12;if(seats<S.guests.length){const need=Math.ceil((S.guests.length-seats)/cap);for(let i=0;i<need;i++)S.tables.push({id:newId('t'),name:'Mesa '+(S.tables.length+1),cap})}
@@ -428,12 +421,12 @@ async function copy(id){const v=$(id).value;try{await navigator.clipboard.writeT
 $('expCopyCsv').onclick=()=>copy('expCsv');$('expCopyJson').onclick=()=>copy('expJson');$('expClose').onclick=()=>close('mExport');
 $('expRestore').onclick=()=>{try{const d=JSON.parse($('expJson').value);if(!d.guests||!d.tables||!d.fams)throw 0;pushHist();S=d;isDemo=false;close('mExport');commit();toast('Respaldo restaurado')}catch(e){toast('El texto no es un respaldo válido')}};
 function buildXlsx(){const X=XLSX,wb=X.utils.book_new();const add=(rows,name,cols,filter)=>{const w=X.utils.aoa_to_sheet(rows);w['!cols']=cols.map(c=>({wch:c}));if(filter)w['!autofilter']={ref:'A1:'+String.fromCharCode(64+rows[0].length)+rows.length};X.utils.book_append_sheet(wb,w,name)};
-  const r1=[['Mesa','Sillas','N°','Nombre','Invitado de (estudiante)','Curso']];
-  S.tables.forEach(t=>sortByFam(membersOf(t.id)).forEach((g,i)=>r1.push([t.name,t.cap,i+1,g.name,famName(g.fam),(FAM(g.fam)||{}).curso||''])));
-  S.guests.filter(g=>!g.table).forEach((g,i)=>r1.push(['Sin mesa','',i+1,g.name,famName(g.fam),(FAM(g.fam)||{}).curso||'']));
-  add(r1,'Por mesa',[16,8,5,32,30,8],1);
-  const r2=[['Estudiante','Curso','N° invitados','Mesa','Invitados']];famsSorted().forEach(f=>r2.push([f.name,f.curso||'',famMembers(f.id).length,famTablesTxt(f.id),famMembers(f.id).map(g=>g.name).join(', ')]));
-  add(r2,'Por estudiante',[30,8,12,18,80],1);
+  const r1=[['Mesa','Sillas','N°','Nombre','Invitado de (estudiante)']];
+  S.tables.forEach(t=>sortByFam(membersOf(t.id)).forEach((g,i)=>r1.push([t.name,t.cap,i+1,g.name,famName(g.fam)])));
+  S.guests.filter(g=>!g.table).forEach((g,i)=>r1.push(['Sin mesa','',i+1,g.name,famName(g.fam)]));
+  add(r1,'Por mesa',[16,8,5,32,30],1);
+  const r2=[['Estudiante','N° invitados','Mesa','Invitados']];famsSorted().forEach(f=>r2.push([f.name,famMembers(f.id).length,famTablesTxt(f.id),famMembers(f.id).map(g=>g.name).join(', ')]));
+  add(r2,'Por estudiante',[30,12,18,80],1);
   const r3=[['Nombre','Invitado de (estudiante)','Mesa']];alpha().forEach(g=>r3.push([g.name,famName(g.fam),tname(g.table)]));add(r3,'Alfabético',[32,30,16],1);
   const cols=S.tables.map(t=>sortByFam(membersOf(t.id))),max=Math.max(...S.tables.map(t=>t.cap),...cols.map(c=>c.length));
   const r4=[S.tables.map(t=>`${t.name} (${membersOf(t.id).length}/${t.cap})`)];for(let i=0;i<max;i++)r4.push(cols.map(c=>c[i]?c[i].name:''));add(r4,'Vista mesas',S.tables.map(()=>26));
@@ -474,8 +467,8 @@ function buildPdf(){const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'
       maxY=Math.max(maxY,doc.lastAutoTable.finalY)});y=maxY+6}
   // por estudiante
   doc.addPage();title('Ubicación por estudiante',S.title||'');
-  doc.autoTable({startY:30,theme:'striped',head:[['Estudiante','Curso','Invitados','Mesa']],body:famsSorted().map(f=>[f.name,f.curso||'',famMembers(f.id).length,famTablesTxt(f.id)]),
-    styles:{fontSize:9,cellPadding:1.6,textColor:INK},headStyles:{fillColor:NAVY},alternateRowStyles:{fillColor:[247,243,233]},columnStyles:{2:{halign:'center'},3:{fontStyle:'bold'}}});
+  doc.autoTable({startY:30,theme:'striped',head:[['Estudiante','Invitados','Mesa']],body:famsSorted().map(f=>[f.name,famMembers(f.id).length,famTablesTxt(f.id)]),
+    styles:{fontSize:9,cellPadding:1.6,textColor:INK},headStyles:{fillColor:NAVY},alternateRowStyles:{fillColor:[247,243,233]},columnStyles:{1:{halign:'center'},2:{fontStyle:'bold'}}});
   // alfabética
   doc.addPage();title('Lista alfabética de invitados','Para recibir a los invitados e indicarles su mesa');
   doc.autoTable({startY:30,theme:'striped',head:[['Nombre','Invitado de','Mesa']],body:alpha().map(g=>[g.name,famName(g.fam),tname(g.table)]),
